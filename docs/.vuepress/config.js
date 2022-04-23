@@ -1,5 +1,5 @@
 module.exports = {
-    base: '/learn-wgpu/',
+    base: '/learn-wgpu-cn/',
     title: '学习 Wgpu',
     theme: 'thindark',
     plugins: {
