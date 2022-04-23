@@ -1,6 +1,6 @@
 module.exports = {
     base: '/learn-wgpu/',
-    title: 'Learn Wgpu',
+    title: '学习 Wgpu',
     theme: 'thindark',
     plugins: {
         'vuepress-plugin-code-copy': true,
@@ -18,7 +18,7 @@ module.exports = {
         sidebar: [
             '/',
             {
-                title: 'Beginner',
+                title: '入门',
                 collapsable: false,
                 children: [
                     '/beginner/tutorial1-window/',
@@ -33,7 +33,7 @@ module.exports = {
                 ],
             },
             {
-                title: 'Intermediate',
+                title: '进阶',
                 collapsable: false,
                 children: [
                     '/intermediate/tutorial10-lighting/',
@@ -43,7 +43,7 @@ module.exports = {
                 ],
             },
             {
-                title: 'Showcase',
+                title: '案例展示',
                 collapsable: true,
                 children: [
                     '/showcase/',
@@ -56,7 +56,7 @@ module.exports = {
                 ]
             },
             {
-                title: 'News',
+                title: '更新动态',
                 collapsable: true,
                 children: [
                     '/news/0.12/',

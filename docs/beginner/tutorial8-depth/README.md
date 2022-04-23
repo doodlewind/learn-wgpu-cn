@@ -1,4 +1,4 @@
-# The Depth Buffer
+# 深度缓冲区
 
 Let's take a closer look at the last example at an angle.
 

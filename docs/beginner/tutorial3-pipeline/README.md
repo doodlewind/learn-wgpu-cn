@@ -1,4 +1,4 @@
-# The Pipeline
+# 使用 Pipeline
 
 ## What's a pipeline?
 If you're familiar with OpenGL, you may remember using shader programs. You can think of a pipeline as a more robust version of that. A pipeline describes all the actions the gpu will perform when acting on a set of data. In this section, we will be creating a `RenderPipeline` specifically.

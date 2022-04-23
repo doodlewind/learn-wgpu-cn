@@ -1,4 +1,4 @@
-# Uniform buffers and a 3d camera
+# Uniform 缓冲区与 3D 相机
 
 While all of our previous work has seemed to be in 2d, we've actually been working in 3d the entire time! That's part of the reason why our `Vertex` structure has `position` be an array of 3 floats instead of just 2. We can't really see the 3d-ness of our scene, because we're viewing things head on. We're going to change our point of view by creating a `Camera`.
 

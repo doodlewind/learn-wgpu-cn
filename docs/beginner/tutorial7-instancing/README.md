@@ -1,4 +1,4 @@
-# Instancing
+# 实例化渲染
 
 Our scene right now is very simple: we have one object centered at (0,0,0). What if we wanted more objects? This is where instancing comes in.
 

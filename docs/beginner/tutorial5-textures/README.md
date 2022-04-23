@@ -1,4 +1,4 @@
-# Textures and bind groups
+# 纹理与绑定组
 
 Up to this point we have been drawing super simple shapes. While we can make a game with just triangles, trying to draw highly detailed objects would massively limit what devices could even run our game. However, we can get around this problem with **textures**.
 

@@ -1,4 +1,4 @@
-# Buffers and Indices
+# 顶点缓冲区与索引缓冲区
 
 ## We're finally talking about them!
 You were probably getting sick of me saying stuff like "we'll get to that when we talk about buffers". Well now's the time to finally talk about buffers, but first...
