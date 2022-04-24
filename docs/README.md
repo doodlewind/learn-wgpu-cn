@@ -5,6 +5,23 @@ Wgpu 是基于 Rust 的 WebGPU 标准实现，本系列文章是其入门教程 
   <a href="https://github.com/doodlewind/learn-wgpu-cn"><img alt="GitHub stars" src="https://img.shields.io/github/stars/doodlewind/learn-wgpu-cn?style=social"/></a>
 </p>
 
+## 翻译状态
+* 入门篇
+  * ✅ [依赖与窗口](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial1-window/)
+  * ✅ [使用 Surface](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial2-surface/)
+  * ✅ [使用 Pipeline](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial3-pipeline/)
+  * ✅ [顶点缓冲区与索引缓冲区](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial4-buffer/)
+  * ✅ [纹理与 BindGroup](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial5-textures/)
+  * ✅ [Uniform 缓冲区与 3D 相机](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial6-uniforms/)
+  * 🚧 实例化渲染
+  * 🚧 深度缓冲区
+  * 🚧 加载模型
+* 进阶篇
+  * 🚧 处理光照效果
+  * 🚧 法线贴图
+  * 🚧 更好的相机
+  * 🚧 基于 Wgpu 和 Rayon 的多线程
+
 
 ## 什么是 Wgpu？
 [Wgpu](https://github.com/gfx-rs/wgpu) 是 [WebGPU API 标准](https://gpuweb.github.io/gpuweb/)的 Rust 实现。WebGPU 是由 W3C GPU for the Web 社区小组所发布的规范，目标是让网页代码能安全可靠地访问 GPU 功能。其实现方式借鉴了 Vulkan API，会翻译到宿主硬件所用的各式 API（如 DirectX、Metal、Vulkan 等）上执行。
