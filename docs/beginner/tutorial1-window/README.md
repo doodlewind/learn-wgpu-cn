@@ -1,10 +1,10 @@
 # 依赖与窗口
 
-## Boring, I know
-Some of you reading this are very experienced with opening up windows in Rust and probably have your favorite windowing library, but this guide is designed for everybody, so it's something that we need to cover. Luckily, you don't need to read this if you know what you're doing. One thing that you do need to know is that whatever windowing solution you use needs to support the [raw-window-handle](https://github.com/rust-windowing/raw-window-handle) crate.
+## 是的，这段有些枯燥
+有些读者应当已经非常熟悉如何在 Rust 中打开 GUI 窗口，也可能有自己最喜欢的窗口管理库。但本文档是为所有人设计的，所以这一部分也需要涉及。所幸你只要知道这是在做什么，就可以跳过本部分。只有一点值得了解，即无论你使用什么样的窗口解决方案，都需要支持 [raw-window-handle](https://github.com/rust-windowing/raw-window-handle) 这个 crate。
 
-## What crates are we using?
-For the beginner stuff, we're going to keep things very simple, we'll add things as we go, but I've listed the relevant `Cargo.toml` bits below.
+## 我们要使用哪些 crate?
+我们将尽量保持入门部分的简单性。在后续深入时我们会逐渐添加依赖，但这里先列出了相关的 `Cargo.toml` 内容如下：
 
 ```toml
 [dependencies]
@@ -17,16 +17,14 @@ wgpu = "0.12"
 pollster = "0.2"
 ```
 
-## Using Rust's new resolver
-As of version 0.10, wgpu require's cargo's [newest feature resolver](https://doc.rust-lang.org/cargo/reference/resolver.html#feature-resolver-version-2), which is the default in the 2021 edition (any new project started with Rust version 1.56.0 or newer). However, if you are still using the 2018 edition, you must include `resolver = "2"` in either the `[package]` section of `Cargo.toml` if you are working on a single crate, or the `[workspace]` section of the root `Cargo.toml` in a workspace.
+## 使用 Rust 的新版特性解析器
+自 0.10 版本起，wgpu 需要使用 cargo 的[新版特性解析器](https://doc.rust-lang.org/cargo/reference/resolver.html#feature-resolver-version-2)，这在 Rust 的 2021 edition（即任何基于 Rust 1.56.0 或更新版本的新项目）中是默认启用的。但如果你仍在使用 2018 edition 的 Rust，那么你需要在 `Cargo.toml` 的 `[package]` 段落添加 `resolver = "2"`，或在 workspace 的根级 `Cargo.toml` 的 `[workspace]` 段落加入这段配置。
 
-## env_logger
-It is very important to enable logging via `env_logger::init();`.
-When wgpu hits any error it panics with a generic message, while logging the real error via the log crate.
-This means if you don't include `env_logger::init()` wgpu will fail silently, leaving you very confused!
+## 关于 env_logger
+通过 `env_logger::init()` 来启用日志是非常重要的。当 wgpu 遇到各类错误时，它都会用一条通用性的消息抛出 panic，并通过日志 crate 来记录真正的错误信息。这意味着如果不添加 `env_logger::init()`，wgpu 将静默地退出，从而使你非常困惑！
 
-## The code
-There's not much going on here yet, so I'm just going to post the code in full. Just paste this into your `main.rs` or equivalent.
+## 代码示例
+这一部分没有太多特别之处，所以这里直接完整地贴出代码。只需将其粘贴到你的 `main.rs` 或类似位置即可：
 
 ```rust
 use winit::{
@@ -63,6 +61,6 @@ fn main() {
 
 ```
 
-All this does is create a window, and keep it open until the user closes it, or presses escape. In the next tutorial we'll actually start using wgpu!
+上述代码所做的全部工作不过是创建了一个窗口，并在用户关闭或按下 escape 键前使其保持打开。在下一篇教程中，我们将真正开始使用 wgpu!
 
 <AutoGithubLink/>
