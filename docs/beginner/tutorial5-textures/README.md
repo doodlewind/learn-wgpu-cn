@@ -1,18 +1,18 @@
-# 纹理与绑定组
+# 纹理与 BindGroup
 
-Up to this point we have been drawing super simple shapes. While we can make a game with just triangles, trying to draw highly detailed objects would massively limit what devices could even run our game. However, we can get around this problem with **textures**.
+到目前为止，我们一直都是在绘制非常简单的形状。虽然我们确实可以只用三角形来制作游戏，但如果像这样绘制多边形细节极多的物体，会大幅影响游戏对设备的兼容性。所幸我们可以通过**纹理**（texture）来解决这个问题。
 
-Textures are images overlayed on a triangle mesh to make it seem more detailed. There are multiple types of textures such as normal maps, bump maps, specular maps and diffuse maps. We're going to talk about diffuse maps, or more simply, the color texture.
+纹理是叠加在三角形网格上的图像，使其看起来能具备更丰富的细节。纹理也具有多种类型，如法线贴图、凹凸贴图、镜面贴图和漫反射贴图等。此处我们将介绍漫反射贴图，或者说得更简单点，颜色纹理。
 
-## Loading an image from a file
+## 从文件中读取图像
 
-If we want to map an image to our mesh, we first need an image. Let's use this happy little tree:
+如果我们想把图像映射到多边形上，那至少先需要有一张图像。让我们使用这棵快乐小树的图片吧：
 
 ![a happy tree](./happy-tree.png)
 
-We'll use the [image crate](https://crates.io/crates/image) to load our tree. We already added to our dependencies in the first section, so all we have to do is use it.
+我们将使用 [image crate](https://crates.io/crates/image) 来加载这张图片。我们已经在第一节中加入了对此的依赖，所以可以直接使用这个 crate。
 
-In `State`'s `new()` method add the following just after configuring the `surface`:
+在 `State` 的 `new()` 方法中配置了 `surface` 之后，添加以下内容即可：
 
 ```rust
 surface.configure(&device, &config);
@@ -26,9 +26,9 @@ use image::GenericImageView;
 let dimensions = diffuse_image.dimensions();
 ```
 
-Here we grab the bytes from our image file and load them into an image which is then converted into a `Vec` of rgba bytes. We also save the image's dimensions for when we create the actual `Texture`. 
+这里我们从图像文件中读取了字节数据，将其加载到了 image 对象中，并进一步将其转为了 rgba 字节形式的 `Vec`。我们还保存了图像的尺寸，以便在创建实际 `Texture` 时使用。
 
-Now, let's create the `Texture`:
+现在让我们来创建 `Texture`：
 
 ```rust
 let texture_size = wgpu::Extent3d {
@@ -38,38 +38,37 @@ let texture_size = wgpu::Extent3d {
 };
 let diffuse_texture = device.create_texture(
     &wgpu::TextureDescriptor {
-        // All textures are stored as 3D, we represent our 2D texture
-        // by setting depth to 1.
+        // 所有纹理都会以三维数组形式存储，我们通过设置深度为 1 来表示这是二维的纹理
         size: texture_size,
-        mip_level_count: 1, // We'll talk about this a little later
+        mip_level_count: 1, // 我们后面会介绍这里的细节
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
-        // Most images are stored using sRGB so we need to reflect that here.
+        // 多数图像都使用 sRGB 格式，所以我们需要在此将其体现出来
         format: wgpu::TextureFormat::Rgba8UnormSrgb,
-        // TEXTURE_BINDING tells wgpu that we want to use this texture in shaders
-        // COPY_DST means that we want to copy data to this texture
+        // TEXTURE_BINDING 告诉 wgpu 我们想在着色器中使用这个纹理
+        // COPY_DST 则表示我们想把数据复制到这个纹理
         usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
         label: Some("diffuse_texture"),
     }
 );
 ```
 
-## Getting data into a Texture
+## 将数据读取进纹理
 
-The `Texture` struct has no methods to interact with the data directly. However, we can use a method on the `queue` we created earlier called `write_texture` to load the texture in. Let's take a look at how we do that:
+`Texture` struct 上并没有能直接操作其数据的方法。但我们可以使用先前创建的 `queue` 上的 `write_texture` 方法来加载纹理。让我们看看这应该如何实现：
 
 ```rust
 queue.write_texture(
-    // Tells wgpu where to copy the pixel data
+    // 告诉 wgpu 从何处复制像素数据
     wgpu::ImageCopyTexture {
         texture: &diffuse_texture,
         mip_level: 0,
         origin: wgpu::Origin3d::ZERO,
         aspect: wgpu::TextureAspect::All,
     },
-    // The actual pixel data
+    // 实际的像素数据
     diffuse_rgba,
-    // The layout of the texture
+    // 纹理的内存布局
     wgpu::ImageDataLayout {
         offset: 0,
         bytes_per_row: std::num::NonZeroU32::new(4 * dimensions.0),
@@ -81,7 +80,7 @@ queue.write_texture(
 
 <div class="note">
 
-The old way of writing data to a texture was to copy the pixel data to a buffer and then copy it to the texture. Using `write_texture` is a bit more efficient as it uses one buffer less - I'll leave it here though in case you need it.
+向纹理中写入数据的经典方法是将像素数据复制到一个缓冲区，然后再将其复制到纹理中。使用 `write_texture` 则更为高效，因为这样可以少用一个缓冲区——不过这里还是选择介绍这一写法，以备万一之用。
 
 ```rust
 let buffer = device.create_buffer_init(
@@ -115,19 +114,18 @@ encoder.copy_buffer_to_texture(
 queue.submit(std::iter::once(encoder.finish()));
 ```
 
-The `bytes_per_row` field needs some consideration. This value needs to be a multiple of 256. Check out [the gif tutorial](../../showcase/gifs/#how-do-we-make-the-frames) for more details.
+为 `bytes_per_row` 字段所赋的值需要有一些考量，这个值需要是 256 的倍数。可以查阅 [gif 教程](././showcase/gifs) 以了解更多相关细节。
 
 </div>
 
-## TextureViews and Samplers
+## TextureView 与 Sampler
 
-Now that our texture has data in it, we need a way to use it. This is where a `TextureView` and a `Sampler` come in. A `TextureView` offers us a *view* into our texture. A `Sampler` controls how the `Texture` is *sampled*. Sampling works similar to the eyedropper tool in GIMP/Photoshop. Our program supplies a coordinate on the texture (known as a *texture coordinate*), and the sampler then returns the corresponding color based on the texture and some internal parameters.
+现在纹理中已经有了数据，下面就需要以某种方法来使用它。这就要用到 `TextureView` 和 `Sampler` 了。`TextureView` 相当于对纹理数据的一种*视图*，而 `Sampler` 用于控制 `Texture` 如何被*采样*。采样过程类似于 GIMP 或 Photoshop 中的滴管取色工具，程序支持读入用于定位纹理上位置的坐标（亦即*纹理坐标*），然后采样器就会根据纹理内容和一些内部参数来返回相应位置的颜色。
 
-Let's define our `diffuse_texture_view` and `diffuse_sampler` now:
+现在让我们来定义 `diffuse_texture_view` 和 `diffuse_sampler` 吧：
 
 ```rust
-// We don't need to configure the texture view much, so let's
-// let wgpu define it.
+// 我们无需手动配置纹理视图，让 wgpu 定义它即可
 let diffuse_texture_view = diffuse_texture.create_view(&wgpu::TextureViewDescriptor::default());
 let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
     address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -140,29 +138,29 @@ let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
 });
 ```
 
-The `address_mode_*` parameters determine what to do if the sampler gets a texture coordinate that's outside the texture itself. We have a few options to choose from:
+如果采样器接收到的纹理坐标在纹理本身之外，那么 `address_mode_*` 参数可用于决定此时的处理机制。这里有几个选项可供选择：
 
-* `ClampToEdge`: Any texture coordinates outside the texture will return the color of the nearest pixel on the edges of the texture.
-* `Repeat`: The texture will repeat as texture coordinates exceed the textures dimensions.
-* `MirrorRepeat`: Similar to `Repeat`, but the image will flip when going over boundaries.
+* `ClampToEdge`：对任何在纹理之外的纹理坐标，都返回离纹理边缘最近像素的颜色。
+* `Repeat`：当纹理坐标超过纹理尺寸时，纹理将重复。
+* `MirrorRepeat`：类似于 `Repeat`，但图像在越过边界时将翻转。
 
 ![address_mode.png](./address_mode.png)
 
-The `mag_filter` and `min_filter` options describe what to do when a fragment covers multiple pixels, or there are multiple fragments for a single pixel. This often comes into play when viewing a surface from up close, or from far away. 
+`mag_filter` 和 `min_filter` 选项描述了当一个片元覆盖了多个像素，或一个像素内存在多个片元时，应当做怎样的处理。当从近处或远处观察一个多边形表面时，这个配置经常会带来影响。
 
-There are 2 options:
-* `Linear`: Attempt to blend the in-between fragments so that they seem to flow together.
-* `Nearest`: In-between fragments will use the color of the nearest pixel. This creates an image that's crisper from far away, but pixelated up close. This can be desirable, however, if your textures are designed to be pixelated, like in pixel art games, or voxel games like Minecraft.
+这里有两种选项：
+* `Linear`：尝试混合中间的片元，使它们看起来平滑。
+* `Nearest`：中间的片元将使用最近像素的颜色。这样可以获得从远处看较为锐利的图像，但从近处看来则会有像素化的效果。不过如果纹理本身就被设计成像素化形式（如像素艺术游戏或像 Minecraft 这样的体素游戏），这个配置的效果也可能符合预期。
 
-Mipmaps are a complex topic, and will require [their own section in the future](/todo). For now, we can say that `mipmap_filter` functions similar to `(mag/min)_filter` as it tells the sampler how to blend between mipmaps.
+Mipmap 是一个复杂的话题，将来应当有[独立的章节](/todo)。现在我们可以简单认为 `mipmap_filter` 的功能类似于 `(mag/min)_filter`，它会告诉采样器该如何在各个层级的 mipmap 之间做混合。
 
-I'm using some defaults for the other fields. If you want to see what they are, check [the wgpu docs](https://docs.rs/wgpu/0.12.0/wgpu/struct.SamplerDescriptor.html).
+这里对其他字段使用了一些默认值。如果想详细了解其配置，请查看 [wgpu 文档](https://docs.rs/wgpu/0.12.0/wgpu/struct.SamplerDescriptor.html)。
 
-All these different resources are nice and all, but they don't do us much good if we can't plug them in anywhere. This is where `BindGroup`s and `PipelineLayout`s come in.
+虽然这些不同的资源类型都很强大，但如果无法将它们接入渲染系统中，那也没有实际的用处。为了达到这一点，就需要使用 `BindGroup` 和 `PipelineLayout` 了。
 
-## The BindGroup
+## 介绍 BindGroup
 
-A `BindGroup` describes a set of resources and how they can be accessed by a shader. We create a `BindGroup` using a `BindGroupLayout`. Let's make one of those first.
+`BindGroup` 可以描述一组资源，并确定它们应当如何被着色器所访问。`BindGroup` 可以用 `BindGroupLayout` 来创建。让我们先动手实现一个：
 
 ```rust
 let texture_bind_group_layout = device.create_bind_group_layout(
@@ -182,10 +180,10 @@ let texture_bind_group_layout = device.create_bind_group_layout(
                 binding: 1,
                 visibility: wgpu::ShaderStages::FRAGMENT,
                 ty: wgpu::BindingType::Sampler(
-                    // SamplerBindingType::Comparison is only for TextureSampleType::Depth
-                    // SamplerBindingType::Filtering if the sample_type of the texture is:
-                    //     TextureSampleType::Float { filterable: true }
-                    // Otherwise you'll get an error.
+                    // SamplerBindingType::Comparison 仅可供 TextureSampleType::Depth 使用
+                    // 如果纹理的 sample_type 是 TextureSampleType::Float { filterable: true }
+                    // 那么就应当使用 SamplerBindingType::Filtering
+                    // 否则会报错
                     wgpu::SamplerBindingType::Filtering,
                 ),
                 count: None,
@@ -196,9 +194,9 @@ let texture_bind_group_layout = device.create_bind_group_layout(
 );
 ```
 
-Our `texture_bind_group_layout` has two entries: one for a sampled texture at binding 0, and one for a sampler at binding 1. Both of these bindings are visible only to the fragment shader as specified by `FRAGMENT`. The possible values for this field are any bitwise combination of `NONE`, `VERTEX`, `FRAGMENT`, or `COMPUTE`. Most of the time we'll only use `FRAGMENT` for textures and samplers, but it's good to know what else is available.
+`texture_bind_group_layout` 有两个入口：一个是绑定到 0 的被采样纹理，另一个是绑定到 1 的采样器。这两个绑定只对由 `FRAGMENT` 常量所指定的片元着色器可见。这个字段的可选值是 `NONE`、`VERTEX`、`FRAGMENT` 或 `COMPUTE` 的任意位数组合。大多数情况下，我们只会对纹理和采样器使用 `FRAGMENT` 配置，但其他的可选项也值得了解。
 
-With `texture_bind_group_layout`, we can now create our `BindGroup`:
+有了 `texture_bind_group_layout` 之后，我们就可以创建 `BindGroup` 了：
 
 ```rust
 let diffuse_bind_group = device.create_bind_group(
@@ -219,9 +217,9 @@ let diffuse_bind_group = device.create_bind_group(
 );
 ```
 
-Looking at this you might get a bit of déjà vu! That's because a `BindGroup` is a more specific declaration of the `BindGroupLayout`. The reason they're separate is that it allows us to swap out `BindGroup`s on the fly, so long as they all share the same `BindGroupLayout`. Each texture and sampler we create will need to be added to a `BindGroup`. For our purposes, we'll create a new bind group for each texture.
+上面的代码可能会让你产生一点既视感！这是因为 `BindGroup` 是 `BindGroupLayout` 的一份更为具体的声明。将它们分离的原因是这样允许我们在运行时动态交换不同的 `BindGroup`，只要它们都共享同一个 `BindGroupLayout` 即可。我们创建的每个纹理和采样器都需要添加到某个 `BindGroup` 中。此处我们将为每个纹理创建一个新的 bind group。
 
-Now that we have our `diffuse_bind_group`, let's add it to our `State` struct:
+现在我们有了 `diffuse_bind_group`，可以将其添加到 `State` struct 中：
 
 ```rust
 struct State {
@@ -238,7 +236,7 @@ struct State {
 }
 ```
 
-Make sure we return these fields in the `new` method:
+请确保在 `new` 方法中返回这些字段：
 
 ```rust
 impl State {
@@ -261,7 +259,7 @@ impl State {
 }
 ```
 
-Now that we've got our `BindGroup`, we can use it in our `render()` function.
+现在我们已经获得了 `BindGroup`，可以在 `render()` 函数中使用它了：
 
 ```rust
 // render()
@@ -274,9 +272,9 @@ render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uin
 render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
 ```
 
-## PipelineLayout
+## 介绍 PipelineLayout
 
-Remember the `PipelineLayout` we created back in [the pipeline section](/beginner/tutorial3-pipeline#how-do-we-use-the-shaders)? Now we finally get to use it! The `PipelineLayout` contains a list of `BindGroupLayout`s that the pipeline can use. Modify `render_pipeline_layout` to use our `texture_bind_group_layout`.
+还记得我们在 [pipeline 章节](/beginner/tutorial3-pipeline#how-do-we-use-the-shaders)中创建的 `PipelineLayout` 吗？现在我们终于要用到它了！`PipelineLayout` 包含一份可供管线使用的 `BindGroupLayout` 列表。修改 `render_pipeline_layout` 后即可使用我们的 `texture_bind_group_layout`：
 
 ```rust
 async fn new(...) {
@@ -292,12 +290,12 @@ async fn new(...) {
 }
 ```
 
-## A change to the VERTICES
-There's a few things we need to change about our `Vertex` definition. Up to now we've been using a `color` attribute to set the color of our mesh. Now that we're using a texture, we want to replace our `color` with `tex_coords`. These coordinates will then be passed to the `Sampler` to retrieve the appropriate color.
+## 对 VERTICES 的改动
+现在我们需要对 `Vertex` 的定义做一些改动。到目前为止，我们一直是在使用 `color` 属性来设置我们所绘制形体的颜色。现在我们使用了纹理，因此可以用记录纹理坐标的 `tex_coords` 来代替 `color`，这些坐标将被传递给 `Sampler` 以获取适当的颜色。
 
-Since our `tex_coords` are two dimensional, we'll change the field to take two floats instead of three.
+由于我们的 `tex_coords` 是二维的，因此我们需要将这个字段改为使用两个浮点数，而非原先的三个。
 
-First, we'll change the `Vertex` struct:
+首先我们需要改变 `Vertex` struct：
 
 ```rust
 #[repr(C)]
@@ -308,7 +306,7 @@ struct Vertex {
 }
 ```
 
-And then reflect these changes in the `VertexBufferLayout`:
+然后在 `VertexBufferLayout` 中反映这些变化：
 
 ```rust
 impl Vertex {
@@ -334,7 +332,7 @@ impl Vertex {
 }
 ```
 
-Lastly we need to change `VERTICES` itself. Replace the existing definition with the following:
+最后我们需要改变 `VERTICES` 的内容，用以下数据取代现有的定义：
 
 ```rust
 // Changed
@@ -347,12 +345,12 @@ const VERTICES: &[Vertex] = &[
 ];
 ```
 
-## Shader time
+## 着色器时间
 
-With our new `Vertex` structure in place it's time to update our shaders. We'll first need to pass our `tex_coords` into the vertex shader and then use them over to our fragment shader to get the final color from the `Sampler`. Let's start with the vertex shader:
+有了新的 `Vertex` 结构后，就该修改着色器了。我们首先需要将 `tex_coords` 传递给顶点着色器，然后再将它们用于片元着色器，以便从 `Sampler` 中获得最终的颜色。让我们从顶点着色器开始：
 
 ```wgsl
-// Vertex shader
+// 顶点着色器
 
 struct VertexInput {
     [[location(0)]] position: vec3<f32>;
@@ -375,10 +373,10 @@ fn vs_main(
 }
 ```
 
-Now that we have our vertex shader outputting our `tex_coords`, we need to change the fragment shader to take them in. With these coordinates, we'll finally be able to use our sampler to get a color from our texture.
+现在顶点着色器会输出 `tex_coords`，我们需要改变片元着色器来接收它们。有了这些坐标，我们就终于可以用采样器从纹理中获取颜色了：
 
 ```wgsl
-// Fragment shader
+// 片元着色器
 
 [[group(0), binding(0)]]
 var t_diffuse: texture_2d<f32>;
@@ -391,19 +389,19 @@ fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
 }
 ```
 
-The variables `t_diffuse` and `s_diffuse` are what's known as uniforms. We'll go over uniforms more in the [cameras section](/beginner/tutorial6-uniforms/). For now, all we need to know is that `group()` corresponds to the 1st parameter in `set_bind_group()` and `binding()` relates to the `binding` specified when we created the `BindGroupLayout` and `BindGroup`.
+这里的变量 `t_diffuse` 和 `s_diffuse` 就是所谓的 uniform。我们将在[相机部分](/beginner/tutorial6-uniforms/)中进一步讨论它们。现在我们所需要知道的是，`group()` 对应于 `set_bind_group()` 中的第一个参数，`binding()` 则与我们创建 `BindGroupLayout` 和 `BindGroup` 时所指定的 `binding` 有关。
 
-## The results
+## 渲染结果
 
-If we run our program now we should get the following result:
+如果现在运行我们的程序，应该得到以下结果：
 
 ![an upside down tree on a hexagon](./upside-down.png)
 
-That's weird, our tree is upside down! This is because wgpu's world coordinates have the y-axis pointing up, while texture coordinates have the y-axis pointing down. In other words, (0, 0) in texture coordinates corresponds to the top-left of the image, while (1, 1) is the bottom right.
+这很奇怪，我们的树上下颠倒了！这是因为 wgpu 中世界坐标系的 Y 轴指向上方，而纹理坐标系的 Y 轴指向下方。换句话说，纹理坐标中的 `(0, 0)` 对应图像的左上角，而 `(1,1)` 对应右下角。
 
 ![happy-tree-uv-coords.png](./happy-tree-uv-coords.png)
 
-We can get our triangle right-side up by replacing the y coordinate `y` of each texture coordinate with `1 - y`:
+我们可以将每个纹理坐标的 y 坐标 `y` 替换为 `1 - y`，以此得到三角形的正确朝向。
 
 ```rust
 const VERTICES: &[Vertex] = &[
@@ -416,13 +414,13 @@ const VERTICES: &[Vertex] = &[
 ];
 ```
 
-With that in place, we now have our tree right-side up on our hexagon:
+这样就可以把树正确地放在五边形上了：
 
 ![our happy tree as it should be](./rightside-up.png)
 
-## Cleaning things up
+## 整理总结
 
-For convenience, let's pull our texture code into its own module. We'll first need to add the [anyhow](https://docs.rs/anyhow/) crate to our `Cargo.toml` file to simplify error handling;
+为方便起见，我们希望把纹理代码整理进其对应的模块。我们首先需要将 [anyhow](https://docs.rs/anyhow/) crate 添加到 `Cargo.toml` 文件中，以简化错误处理：
 
 ```toml
 [dependencies]
@@ -437,7 +435,7 @@ bytemuck = { version = "1.4", features = [ "derive" ] }
 anyhow = "1.0" # NEW!
 ```
 
-Then, in a new file called `src/texture.rs`, add the following:
+然后在一个名为 `src/texture.rs` 的新文件中，添加以下内容：
 
 ```rust
 use image::GenericImageView;
@@ -520,25 +518,25 @@ impl Texture {
 }
 ```
 
-Note that we're returning a `CommandBuffer` with our texture. This means we can load multiple textures at the same time, and then submit all their command buffers at once.
+注意我们要用纹理返回一个 `CommandBuffer`。这意味着我们可以同时加载多个纹理，然后再一次性提交所有的命令缓冲区。
 
-We need to import `texture.rs` as a module, so somewhere at the top of `main.rs` add the following.
+我们需要将 `texture.rs` 作为模块导入，所以需在 `main.rs` 顶部添加以下内容：
 
 ```rust
 mod texture;
 ```
 
-The texture creation code in `new()` now gets a lot simpler:
+这样 `new()` 中的纹理创建代码就变得简单多了：
 
 ```rust
 surface.configure(&device, &config);
 let diffuse_bytes = include_bytes!("happy-tree.png"); // CHANGED!
 let diffuse_texture = texture::Texture::from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap(); // CHANGED!
 
-// Everything up until `let texture_bind_group_layout = ...` can now be removed.
+// 所有到 `let texture_bind_group_layout = ...` 为止的部分现在都可以移除了
 ```
 
-We still need to store the bind group separately so that `Texture` doesn't need know how the `BindGroup` is laid out. The creation of `diffuse_bind_group` slightly changes to use the `view` and `sampler` fields of `diffuse_texture`:
+我们仍然需要单独存储 bind group，这样 `Texture` 就不需要知道 `BindGroup` 是如何布局的了。这样创建 `diffuse_bind_group` 的过程略有变化，会用到 `diffuse_texture` 的 `view` 和 `sampler` 字段：
 
 ```rust
 let diffuse_bind_group = device.create_bind_group(
@@ -559,7 +557,7 @@ let diffuse_bind_group = device.create_bind_group(
 );
 ```
 
-Finally, let's update our `State` field to use our shiny new `Texture` struct, as we'll need it in future tutorials.
+最后只需更新 `State` 字段，就可以用上我们闪亮的新 `Texture` 结构了。在后续教程中我们还会用到它：
 
 ```rust
 struct State {
@@ -583,12 +581,12 @@ impl State {
 }
 ```
 
-Phew! 
+哦吼！
 
-With these changes in place, the code should be working the same as it was before, but we now have a much easier way to create textures.
+引入这些改变后，代码的工作方式仍然和之前相同，但现在我们就能更方便地创建纹理了。
 
-## Challenge
+## 小测验
 
-Create another texture and swap it out when you press the space key.
+尝试创建另一个纹理，并在按下空格键时将其换掉。
 
 <AutoGithubLink/>
