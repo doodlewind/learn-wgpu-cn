@@ -1,50 +1,47 @@
 # 使用 Pipeline
 
-## What's a pipeline?
-If you're familiar with OpenGL, you may remember using shader programs. You can think of a pipeline as a more robust version of that. A pipeline describes all the actions the gpu will perform when acting on a set of data. In this section, we will be creating a `RenderPipeline` specifically.
+## 什么是 Pipeline？
+如果你熟悉 OpenGL，你可能还记得对着色器程序的使用。你可以认为 pipeline（管线）较其更为强大。一条 pipeline 描述了 GPU 在操作数据集时将执行的所有动作。在本节中，我们将具体创建一条 `RenderPipeline`。
 
-## Wait shaders?
-Shaders are mini programs that you send to the gpu to perform operations on your data. There are 3 main types of shader: vertex, fragment, and compute. There are others such as geometry shaders, but they're more of an advanced topic. For now we're just going to use vertex, and fragment shaders.
+## 什么是着色器？
+着色器是发送到 GPU 上执行的小段程序，用于对数据进行操作（注意区分程序与数据，译者注）。着色器有三种主要类型：顶点着色器、片元着色器和计算着色器。另外还存在一些如几何着色器这样其他类型的着色器，但这已经属于较为进阶的话题。现在我们只需要使用顶点着色器和片元着色器。
 
-## Vertex, fragment.. what are those?
-A vertex is a point in 3d space (can also be 2d). These vertices are then bundled in groups of 2s to form lines and/or 3s to form triangles.
+## 什么是顶点和片元？
+一个顶点（vertex）就是三维（或二维）空间中的一个点。这些顶点会两两成组以构成线段，或者三个一组以构成三角形。
 
 <img src="./tutorial3-pipeline-vertices.png" />
 
-Most modern rendering uses triangles to make all shapes, from simple shapes (such as cubes), to complex ones (such as people). These triangles are stored as vertices which are the points that make up the corners of the triangles.
+大多数现代渲染系统使用三角形来建模所有形体。从简单如立方体到复杂如人体的结构，均可按此方式表达。这些三角形会被存储为一长串顶点，其中每个顶点均存储与某空间位置相关联的数据（注意顶点数据中未必仅有该点的坐标位置，译者注）。
 
 <!-- Todo: Find/make an image to put here -->
 
-We use a vertex shader to manipulate the vertices, in order to transform the shape to look the way we want it.
+我们需要先用顶点着色器来处理顶点，以便按我们的需求对形体做变换。
 
-The vertices are then converted into fragments. Every pixel in the result image gets at least one fragment. Each fragment has a color that will be copied to its corresponding pixel. The fragment shader decides what color the fragment will be.
+然后，顶点会被转换为片元（fragment）。渲染产物图像中的每个像素至少对应一个片元。每个片元都具备一个颜色，该颜色可被复制到其对应的像素。片元着色器可决定片元的颜色。
 
 ## WGSL
 
-[WebGPU Shading Language](https://www.w3.org/TR/WGSL/) (WGSL) is the shader language for WebGPU.
-WGSL's development focuses on getting it to easily convert into the shader language corresponding to the backend; for example, SPIR-V for Vulkan, MSL for Metal, HLSL for DX12, and GLSL for OpenGL.
-The conversion is done internally and we usually don't need to care about the details.
-In the case of wgpu, it's done by the library called [naga](https://github.com/gfx-rs/naga).
+[WebGPU Shading Language](https://www.w3.org/TR/WGSL/)（WGSL）是 WebGPU 的着色器语言。WGSL 的开发重点是使其能轻松转换为与某渲染后端对应的着色器语言，如 Vulkan 的 SPIR-V、Metal 的 MSL、DX12 的 HLSL 和 OpenGL 的 GLSL 等。这些转换是在内部完成的，我们通常不需要关心这些细节。对 wgpu 而言，这一过程是由名为 [naga](https://github.com/gfx-rs/naga) 的库完成的。
 
-Note that, at the time of writing this, some WebGPU implementations also support SPIR-V, but it's just a temporary measure during the transition period to WGSL and will be removed (If you are curious about the drama behind SPIR-V and WGSL, please refer to [this blog post](http://kvark.github.io/spirv/2021/05/01/spirv-horrors.html)).
+注意在本文写作时，一些 WebGPU 实现也支持 SPIR-V，但这只是向 WGSL 过渡期间的临时性措施，其支持最终将被移除（如果你对 SPIR-V 和 WGSL 背后的八卦感到好奇，请参考[这篇博文](http://kvark.github.io/spirv/2021/05/01/spirv-horrors.html)）。
 
 <div class="note">
 
-If you've gone through this tutorial before you'll likely notice that I've switched from using GLSL to using WGSL. Given that GLSL support is a secondary concern and that WGSL is the first class language of WGPU, I've elected to convert all the tutorials to use WGSL. Some showcase examples still use GLSL, but the main tutorial and all examples going forward will be using WGSL.
+如果你曾阅读过本教程，你可能会注意到笔者已从 GLSL 迁移到 WGSL。鉴于标准对 GLSL 的支持较为次要，而 WGSL 才是 WGPU 的一等公民语言，故笔者选择将所有教程均迁移到使用 WGSL。仓库中一些展示性的 demo 仍会使用 GLSL，但主要教程和所有的配套示例都将使用 WGSL。
 
 </div>
 
 <div class="note">
 
-The WGSL spec and it's inclusion in WGPU is still in development. If you run into trouble using it, you may want the folks at [https://app.element.io/#/room/#wgpu:matrix.org](https://app.element.io/#/room/#wgpu:matrix.org) to take a look at your code.
+WGSL 规范及其在 WGPU 中的应用仍在开发之中。如果你在使用时遇到问题，或许可以在 [https://app.element.io/#/room/#wgpu:matrix.org](https://app.element.io/#/room/#wgpu:matrix.org) 请社区参与者们看一下你的代码。
 
 </div>
 
-## Writing the shaders
-In the same folder as `main.rs`, create a file `shader.wgsl`. Write the following code in `shader.wgsl`.
+## 编写着色器
+首先在与 `main.rs` 同级的目录中创建一个 `shader.wgsl` 文件，在其中写入以下代码：
 
 ```wgsl
-// Vertex shader
+// 顶点着色器
 
 struct VertexOutput {
     [[builtin(position)]] clip_position: vec4<f32>;
@@ -62,53 +59,53 @@ fn vs_main(
 }
 ```
 
-First we declare `struct` to store the output of our vertex shader. This consists of only one field currently which is our vertex's `clip_position`. The `[[builtin(position)]]` bit tells WGPU that this is the value we want to use as the vertex's [clip coordinates](https://en.wikipedia.org/wiki/Clip_coordinates). This is analogous to GLSL's `gl_Position` variable.
+我们先声明了 `struct` 来存储顶点着色器的输出，其中目前只有一个字段，即顶点的 `clip_position`。`[[builtin(position)]]` 这段标记告诉 wgpu，这个值应当作为顶点在[剪切坐标系](https://en.wikipedia.org/wiki/Clip_coordinates)中的位置来使用，类似于 GLSL 的 `gl_Position` 变量。
 
 <div class="note">
 
-Vector types such as `vec4` are generic. Currently, you must specify the type of value the vector will contain. Thus, a 3D vector using 32bit floats would be `vec3<f32>`.
+WGSL 中形如 `vec4` 的矢量类型是泛型。目前你必须指定矢量内部值的具体类型。因此，一个使用 32 位浮点数的三维向量对应 `vec3<f32>`。
 
 </div>
 
-The next part of the shader code is the `vs_main` function. We are using `[[stage(vertex)]]` to mark this function as a valid entry point for a vertex shader. We expect a `u32` called `in_vertex_index` which gets its value from `[[builtin(vertex_index)]]`.
+着色器代码的下一部分是 `vs_main` 函数。我们用 `[[stage(vertex)]]` 将这个函数标记为顶点着色器的有效入口。它需要传入一个名为 `in_vertex_index` 的 `u32` 参数，而这个参数会从 `[[builtin(vertex_index)]]` 处取值。
 
-We then declare a variable called `out` using our `VertexOutput` struct. We create two other variables for the `x`, and `y`, of a triangle.
+然后我们用 `VertexOutput` struct 定义了一个名为 `out` 的变量，还为三角形的 `x` 和 `y` 创建了另外两个变量。
 
 <div class="note">
 
-The `f32()` and `i32()` bits are examples of casts.
+此处的 `f32()` 和 `i32()` 代码是显式类型转换（cast）的例子。
 
 </div>
 
 <div class="note">
 
-Variables defined with `var` can be modified, but must specify their type. Variables created with `let` can have their types inferred, but their value cannot be changed during the shader.
+用 `var` 定义的变量可以被修改，但必须指定其类型。用 `let` 创建的变量可以推断出它们的类型，但在着色器中不能改变它们的值。
 
 </div>
 
-Now we can save our `clip_position` to `out`. We then just return `out` and we're done with the vertex shader!
+现在我们可以把 `clip_position` 保存到 `out` 了。然后只要返回 `out`，我们就完成了顶点着色器的工作！
 
 <div class="note">
 
-We technically didn't need a struct for this example, and could have just done something like the following:
+就技术上而言，这个例子中也可以不使用 struct，直接做如下操作即可：
 
 ```wgsl
 [[stage(vertex)]]
 fn vs_main(
     [[builtin(vertex_index)]] in_vertex_index: u32
 ) -> [[builtin(position)]] vec4<f32> {
-    // Vertex shader code...
+    // 顶点着色器代码...
 }
 ```
 
-We'll be adding more fields to `VertexOutput` later, so we might as well start using it now.
+不过我们后面会为 `VertexOutput` 添加更多的字段，所以不妨从现在就开始使用它。
 
 </div>
 
-Next up the fragment shader. Still in `shader.wgsl` add the following:
+接下来是片元着色器了。继续在 `shader.wgsl` 中加入以下内容即可：
 
 ```wgsl
-// Fragment shader
+// 片元着色器
 
 [[stage(fragment)]]
 fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
@@ -116,18 +113,18 @@ fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
 }
 ```
 
-This sets the color of the current fragment to brown.
+这会将当前片元的颜色设置为棕色。
 
 <div class="note">
 
-Notice that the entry point for the vertex shader was named `vs_main` and that the entry point for the fragment shader is called `fs_main`. In earlier versions of wgpu it was ok to both name these functions the same, but newer versions of the [WGSL spec](https://www.w3.org/TR/WGSL/#declaration-and-scope) require these names to be different. Therefore, the above mentioned naming scheme (which is adopted from the `wgpu` examples) is used throughout the tutorial.
+注意顶点着色器的入口点被命名为 `vs_main`，而片元着色器的入口点被称为 `fs_main`。在 wgpu 的早期版本中，这两个函数可以采用相同的名称，但较新版本的 [WGSL 规范](https://www.w3.org/TR/WGSL/#declaration-and-scope)要求它们使用不同的名称。因此，上面提到的命名方案（该方案也在 wgpu 自身示例中应用）将在整个教程中应用。
 
 </div>
 
-The `[[location(0)]]` bit tells WGPU to store the `vec4` value returned by this function in the first color target. We'll get into what this is later.
+`[[location(0)]` 标记会告知 wgpu 将该函数返回的 `vec4` 值存储在其第一个颜色目标中。后面我们会介绍其详细含义。
 
-## How do we use the shaders?
-This is the part where we finally make the thing in the title: the pipeline. First let's modify `State` to include the following.
+## 如何使用着色器？
+这里终于用到了本节标题中提到的 pipeline 概念。我们首先需要修改 `State` 来加入以下字段：
 
 ```rust
 // main.rs
@@ -142,7 +139,7 @@ struct State {
 }
 ```
 
-Now let's move to the `new()` method, and start making the pipeline. We'll have to load in those shaders we made earlier, as the `render_pipeline` requires those.
+现在我们看一下 `new()` 方法，可以在此开始构建 pipeline。为此我们需要先载入前面写好的着色器，它们是 `render_pipeline` 所需要的：
 
 ```rust
 let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
@@ -153,7 +150,7 @@ let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
 
 <div class="note">
 
-You can also use `include_wgsl!` macro as a small shortcut to create the `ShaderModuleDescriptor`.
+你也可以把 `include_wgsl!` 宏作为创建 `ShaderModuleDescriptor` 的一条小捷径：
 
 ```rust
 let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
@@ -161,8 +158,7 @@ let shader = device.create_shader_module(&include_wgsl!("shader.wgsl"));
 
 </div>
 
-
-One more thing, we need to create a `PipelineLayout`. We'll get more into this after we cover `Buffer`s.
+另外我们还需要创建一个 `PipelineLayout`。在介绍完 `Buffer` 之后，我们会对这个概念有更多的了解：
 
 ```rust
 let render_pipeline_layout =
@@ -173,7 +169,7 @@ let render_pipeline_layout =
     });
 ```
 
-Finally we have all we need to create the `render_pipeline`.
+最后我们就获得了创建 `render_pipeline` 所需的全部内容：
 
 ```rust
 let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -196,11 +192,11 @@ let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescrip
     // continued ...
 ```
 
-Two things to note here:
-1. Here you can specify which function inside the shader should be the `entry_point`. These are the functions we marked with `[[stage(vertex)]]` and `[[stage(fragment)]]`
-2. The `buffers` field tells `wgpu` what type of vertices we want to pass to the vertex shader. We're specifying the vertices in the vertex shader itself, so we'll leave this empty. We'll put something there in the next tutorial.
-3. The `fragment` is technically optional, so you have to wrap it in `Some()`. We need it if we want to store color data to the `surface`.
-4. The `targets` field tells `wgpu` what color outputs it should set up.Currently, we only need one for the `surface`. We use the `surface`'s format so that copying to it is easy, and we specify that the blending should just replace old pixel data with new data. We also tell `wgpu` to write to all colors: red, blue, green, and alpha. *We'll talk more about*`color_state` *when we talk about textures.*
+这里有几点值得注意：
+1. 我们可以在此指定应将着色器中的哪个函数作为 `entry_point`。它们分别对应着色器中用 `[[stage(vertex)]]` 和 `[[stage(fragment)]` 标记的函数。
+2. `buffers` 字段用于告知 wgpu 我们要传递给顶点着色器的顶点类型。由于我们会直接在顶点着色器中指定顶点，因此在此留空。下一篇教程中会涉及更多这部分内容。
+3. `fragment` 就技术上而言是可选的，所以必须将其包装在 `Some()` 中。如果想将颜色数据存储到 `surface`，那么就需要使用它。
+4. `targets` 字段告诉 wgpu 应该设置哪些颜色输出。目前我们只需为 `surface` 设置单个输出。这里使用 `surface` 的格式配置以便复制，并且指定混合模式（blending）为仅用新数据替换旧像素数据。此外我们还要求 wgpu 写入所有像素通道的颜色，即红、蓝、绿和 alpha。我们将在讨论纹理时更多地介绍 `color_state`。
 
 ```rust
     primitive: wgpu::PrimitiveState {
@@ -208,20 +204,20 @@ Two things to note here:
         strip_index_format: None,
         front_face: wgpu::FrontFace::Ccw, // 2.
         cull_mode: Some(wgpu::Face::Back),
-        // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
+        // 如果将该字段设置为除了 Fill 之外的任何值，都需要 Features::NON_FILL_POLYGON_MODE
         polygon_mode: wgpu::PolygonMode::Fill,
-        // Requires Features::DEPTH_CLIP_CONTROL
+        // 需要 Features::DEPTH_CLIP_ENABLE
         unclipped_depth: false,
-        // Requires Features::CONSERVATIVE_RASTERIZATION
+        // 需要 Features::CONSERVATIVE_RASTERIZATION
         conservative: false,
     },
     // continued ...
 ```
 
-The `primitive` field describes how to interpret our vertices when converting them into triangles.
+`primitive` 字段描述了应如何将我们所提供的顶点数据转为三角形：
 
-1. Using `PrimitiveTopology::TriangleList` means that each three vertices will correspond to one triangle.
-2. The `front_face` and `cull_mode` fields tell `wgpu` how to determine whether a given triangle is facing forward or not. `FrontFace::Ccw` means that a triangle is facing forward if the vertices are arranged in a counter-clockwise direction. Triangles that are not considered facing forward are culled (not included in the render) as specified by `CullMode::Back`. We'll cover culling a bit more when we cover `Buffer`s.
+1. `PrimitiveTopology::TriangleList` 表示每三个顶点将对应一个三角形。
+2. `front_face` 和 `cull_mode` 字段告诉 wgpu 应如何确定某个三角形是否朝前。`FrontFace::Ccw` 表示如果顶点按逆时针方向排列，则判定三角形是朝前的。不满足朝前条件的三角形会被剔除（即不被渲染），这是用 `CullMode::Back` 所确定的。我们将在讨论 `Buffer` 时进一步介绍剔除问题。
 
 ```rust
     depth_stencil: None, // 1.
@@ -234,16 +230,16 @@ The `primitive` field describes how to interpret our vertices when converting th
 });
 ```
 
-The rest of the method is pretty simple:
-1. We're not using a depth/stencil buffer currently, so we leave `depth_stencil` as `None`. *This will change later*.
-2. `count` determines how many samples the pipeline will use. Multisampling is a complex topic, so we won't get into it here.
-3. `mask` specifies which samples should be active. In this case we are using all of them.
-4. `alpha_to_coverage_enabled` has to do with anti-aliasing. We're not covering anti-aliasing here, so we'll leave this as false now.
-5. `multiview` indicates how many array layers the render attachments can have. We won't be rendering to array textures so we can set this to `None`.
+这个方法中的剩余部分相当简单：
+1. 我们目前没有使用深度 / 模板缓冲区，所以这里把 `depth_stencil` 设为 `None`。*这一点在后面会有所变化*。
+2. `count` 决定了 pipeline 将使用多少次采样。多采样是个复杂的话题，不会在这里展开讨论。
+3. `mask` 指定了哪些采样应被设为活跃。目前我们将使用所有的采样。
+4. `alpha_to_coverage_enabled` 与抗锯齿有关。这里尚不涉及抗锯齿，所以现在将其设置为 false。
+5. `multiview` 用于表示渲染 attachment 中可以带有多少个 [array layer](https://www.w3.org/TR/webgpu/#array-layer)。我们不会对纹理阵列做渲染，所以可以将其设置为 `None`。
 
 <!-- https://gamedev.stackexchange.com/questions/22507/what-is-the-alphatocoverage-blend-state-useful-for -->
 
-Now all we have to do is add the `render_pipeline` to `State` and then we can use it!
+现在我们只要把 `render_pipeline` 添加到 `State`中就可以了!
 
 ```rust
 // new()
@@ -257,9 +253,9 @@ Self {
     render_pipeline,
 }
 ```
-## Using a pipeline
+## 使用 Pipeline
 
-If you run your program now, it'll take a little longer to start, but it will still show the blue screen we got in the last section. That's because while we created the `render_pipeline`, we need to modify the code in `render()` to actually use it.
+如果你现在运行起程序，会发现它虽然有更长的启动时间，但仍然会显示在上一节中得到的蓝屏效果。这是因为虽然我们创建了 `render_pipeline`，但还需要修改 `render()` 中的代码才能实际使用它：
 
 ```rust
 // render()
@@ -270,7 +266,7 @@ If you run your program now, it'll take a little longer to start, but it will st
     let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: Some("Render Pass"),
         color_attachments: &[
-            // This is what [[location(0)]] in the fragment shader targets
+            // 这就是片元着色器中 [[location(0)]] 对应的目标
             wgpu::RenderPassColorAttachment {
                 view: &view,
                 resolve_target: None,
@@ -297,17 +293,17 @@ If you run your program now, it'll take a little longer to start, but it will st
 // ...
 ```
 
-We didn't change much, but let's talk about what we did change.
-1. We renamed `_render_pass` to `render_pass` and made it mutable.
-2. We set the pipeline on the `render_pass` using the one we just created.
-3. We tell `wgpu` to draw *something* with 3 vertices, and 1 instance. This is where `[[builtin(vertex_index)]]` comes from.
+这部分没有多少变化，但这里还是简单介绍下我们的改动：
+1. 我们把 `_render_pass` 重命名为了 `render_pass`，并将其设置为 mutable 变量。
+2. 我们在 `render_pass` 上设置了刚创建出的 pipeline。
+3. 我们告诉 wgpu 用 3 个顶点和 1 个实例来做绘制，这就是 `[[builtin(vertex_index)]]` 的数据来源（即未对顶点着色器传入三角形各点坐标，仅根据 0 1 2 的数组下标索引各自计算出了三角形各点位置，译者注）。
 
-With all that you should be seeing a lovely brown triangle.
+有了这些之后，你应该就能看到一个可爱的棕色三角形了：
 
 ![Said lovely brown triangle](./tutorial3-pipeline-triangle.png)
 
 
-## Challenge
-Create a second pipeline that uses the triangle's position data to create a color that it then sends to the fragment shader. Have the app swap between these when you press the spacebar. *Hint: you'll need to modify* `VertexOutput`
+## 小测验
+创建第二个 pipeline，在其中用三角形的位置数据创建出一种颜色，并将其发送给片元着色器。当按下空格键时，让程序在这些 pipeline 之间做切换。*提示：这需要修改 `VertexOutput`*。
 
 <AutoGithubLink/>

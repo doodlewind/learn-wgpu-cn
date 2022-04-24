@@ -1,5 +1,5 @@
 # 介绍
-Wgpu 是基于 Rust 的 WebGPU 标准实现，本系列文章是其入门教程的中文版。
+Wgpu 是基于 Rust 的 WebGPU 标准实现，本系列文章是其入门教程 *[Learn Wgpu](https://github.com/sotrh/learn-wgpu)* 的中文版。
 
 ## 什么是 Wgpu？
 [Wgpu](https://github.com/gfx-rs/wgpu) 是 [WebGPU API 标准](https://gpuweb.github.io/gpuweb/)的 Rust 实现。WebGPU 是由 W3C GPU for the Web 社区小组所发布的规范，目标是让网页代码能安全可靠地访问 GPU 功能。其实现方式借鉴了 Vulkan API，会翻译到宿主硬件所用的各式 API（如 DirectX、Metal、Vulkan 等）上执行。
