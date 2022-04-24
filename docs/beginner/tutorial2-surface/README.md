@@ -419,9 +419,9 @@ wgpu::RenderPassColorAttachment {
 
 </div>
 
-## 错误校验
+## 关于 Validation Error
 
-如果 wgpu 在你的设备上使用 Vulkan，那么它可能在旧版 Vulkan SDK 上发生校验错误。你应该至少使用 `1.2.182` 版本 SDK，因为旧版可能产生一些误报。如果错误持续存在，也可能说明你遇到了 wgpu 的 bug。你可以在 [https://github.com/gfx-rs/wgpu](https://github.com/gfx-rs/wgpu) 提交相应的 issue。
+如果 wgpu 在你的设备上使用 Vulkan，那么它可能在旧版 Vulkan SDK 上遇到 Validation Error。你应该至少使用 `1.2.182` 版本的 SDK，因为旧版可能产生一些误报。如果错误持续存在，也可能说明你遇到了 wgpu 的 bug。你可以在 [https://github.com/gfx-rs/wgpu](https://github.com/gfx-rs/wgpu) 提交相应的 issue。
 
 ## 小测验
 

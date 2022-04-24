@@ -15,7 +15,7 @@ Wgpu 实际上已经提供了 C 语言绑定，你既可以写 C/C++ 代码来�
 
 ## 贡献与支持
 
-* 原版 [GitHub 仓库](https://github.com/sotrh/learn-wgpu)接受用于勘误性（如修复错别字、错误信息和其他不一致之处）的 PR。
+* 原版 [GitHub 仓库](https://github.com/sotrh/learn-wgpu)接受勘误性（如修复错别字、错误信息和其他不一致之处）的 PR。
 * 由于 wgpu 的 API 变化很快，因此原版仓库不接受任何用于展示 demo 的 PR。
 * 如果想直接支持原作者，请查看 [patreon](https://www.patreon.com/sotrh)！
 
