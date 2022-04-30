@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Memory Layout in WGSL | 学习 Wgpu</title>
+    <meta name="generator" content="VuePress 1.9.7">
+    
+    <meta name="description" content="">
+    <meta property="article:modified_time" content="2021-12-29T18:24:37.000Z">
+    <meta property="og:site_name" content="学习 Wgpu">
+    <meta property="og:title" content="Memory Layout in WGSL">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/showcase/alignment/">
+    <meta name="twitter:title" content="Memory Layout in WGSL">
+    <meta name="twitter:url" content="/showcase/alignment/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:label1" content="Written by">
+    <meta name="twitter:data1" content="Benjamin Hansen">
+    <meta name="twitter:creator" content="https://twitter.com/sotrh760">
+    
+    <link rel="preload" href="/learn-wgpu-cn/assets/css/0.styles.9735b80e.css" as="style"><link rel="preload" href="/learn-wgpu-cn/assets/js/app.4ff5359b.js" as="script"><link rel="preload" href="/learn-wgpu-cn/assets/js/4.7de995c5.js" as="script"><link rel="preload" href="/learn-wgpu-cn/assets/js/33.336b62e7.js" as="script"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/1.5a74b06a.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/10.7328fa8a.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/11.7ede3084.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/12.1618c781.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/13.8ed4ca2f.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/14.27582479.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/15.866ab171.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/16.65e20a6a.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/17.13dd0d98.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/18.0b7e17b3.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/19.e99c2c0b.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/2.1ff473f9.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/20.e60a9b69.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/21.640f3b7f.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/22.5e9abdb4.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/23.428ad388.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/24.ddf53bad.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/25.997fcfd2.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/26.d0cb4a73.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/27.4b3c16d0.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/28.e072a203.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/29.126bb05e.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/30.661cb844.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/31.4d3f435a.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/32.e5012b0b.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/34.08650f25.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/35.20773e94.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/5.79560850.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/6.4f6de209.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/7.430483e0.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/8.24d6fd2e.js"><link rel="prefetch" href="/learn-wgpu-cn/assets/js/9.0426af3e.js">
+    <link rel="stylesheet" href="/learn-wgpu-cn/assets/css/0.styles.9735b80e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="inner"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/learn-wgpu-cn/" class="home-link router-link-active"><!----> <span class="site-name">学习 Wgpu</span></a> <div class="links"><!----> <div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div></div></div></header> <div class="sidebar-mask"></div> <div class="docs-layout"><aside class="sidebar"><!---->  <ul class="sidebar-links"><li><a href="/learn-wgpu-cn/" aria-current="page" class="sidebar-link">介绍</a></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>入门</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/learn-wgpu-cn/beginner/tutorial1-window/" class="sidebar-link">依赖与窗口</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial2-surface/" class="sidebar-link">使用 Surface</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial3-pipeline/" class="sidebar-link">使用 Pipeline</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial4-buffer/" class="sidebar-link">顶点缓冲区与索引缓冲区</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial5-textures/" class="sidebar-link">纹理与 BindGroup</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial6-uniforms/" class="sidebar-link">Uniform 缓冲区与 3D 相机</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial7-instancing/" class="sidebar-link">实例化绘制</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial8-depth/" class="sidebar-link">深度缓冲区</a></li><li><a href="/learn-wgpu-cn/beginner/tutorial9-models/" class="sidebar-link">加载模型</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>进阶</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/learn-wgpu-cn/intermediate/tutorial10-lighting/" class="sidebar-link">🚧 处理光照效果</a></li><li><a href="/learn-wgpu-cn/intermediate/tutorial11-normals/" class="sidebar-link">🚧 法线贴图</a></li><li><a href="/learn-wgpu-cn/intermediate/tutorial12-camera/" class="sidebar-link">🚧 更好的相机</a></li><li><a href="/learn-wgpu-cn/intermediate/tutorial13-threading/" class="sidebar-link">🚧 基于 Wgpu 和 Rayon 的多线程</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>案例展示</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/learn-wgpu-cn/showcase/" aria-current="page" class="sidebar-link">Foreword</a></li><li><a href="/learn-wgpu-cn/showcase/windowless/" class="sidebar-link">Wgpu without a window</a></li><li><a href="/learn-wgpu-cn/showcase/gifs/" class="sidebar-link">Creating gifs</a></li><li><a href="/learn-wgpu-cn/showcase/pong/" class="sidebar-link">Pong</a></li><li><a href="/learn-wgpu-cn/showcase/compute/" class="sidebar-link">Compute Example: Tangents and Bitangents</a></li><li><a href="/learn-wgpu-cn/showcase/alignment/" aria-current="page" class="active sidebar-link">Memory Layout in WGSL</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/learn-wgpu-cn/showcase/alignment/#alignment-of-vertex-and-index-buffers" class="sidebar-link">Alignment of vertex and index buffers</a></li><li class="sidebar-sub-header"><a href="/learn-wgpu-cn/showcase/alignment/#alignment-of-uniform-and-storage-buffers" class="sidebar-link">Alignment of Uniform and Storage buffers</a></li><li class="sidebar-sub-header"><a href="/learn-wgpu-cn/showcase/alignment/#how-to-deal-with-alignment-issues" class="sidebar-link">How to deal with alignment issues</a></li></ul></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>更新动态</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="memory-layout-in-wgsl"><a href="#memory-layout-in-wgsl" class="header-anchor">#</a> Memory Layout in WGSL</h1> <div class="warn"><p>This page is currently being reworked. I want to understand the topics a bit better, but
+as 0.12 is out I want to release what I have for now.</p></div> <h2 id="alignment-of-vertex-and-index-buffers"><a href="#alignment-of-vertex-and-index-buffers" class="header-anchor">#</a> Alignment of vertex and index buffers</h2> <p>Vertex buffers require defining a <code>VertexBufferLayout</code>, so the memory alignment is whatever
+you tell WebGPU it should be. This can be really convenient for keeping down memory usage
+on the GPU.</p> <p>The Index Buffer use the alignment of whatever primitive type you specify via the <code>IndexFormat</code>
+you pass into <code>RenderEncoder::set_index_buffer()</code>.</p> <h2 id="alignment-of-uniform-and-storage-buffers"><a href="#alignment-of-uniform-and-storage-buffers" class="header-anchor">#</a> Alignment of Uniform and Storage buffers</h2> <p>GPUs are designed to process thousands of pixels in parallel. In order to achieve this,
+some sacrifices had to be made. Graphics hardware likes to have all the bytes you intend
+on processing aligned by powers of 2. The exact specifics of why this is are beyond
+my level of knowledge, but it's important to know so that you can trouble shoot why your
+shaders aren't working.</p> <p>Let's take a look at the following table:</p> <hr> <table><thead><tr><th>Type</th> <th>Alignment in Bytes</th> <th>Size in Bytes</th></tr></thead> <tbody><tr><td>scalar (i32, u32, f32)</td> <td>4</td> <td>4</td></tr> <tr><td>vec2&lt;T&gt;</td> <td>8</td> <td>8</td></tr> <tr><td>vec3&lt;T&gt;</td> <td><strong>16</strong></td> <td>12</td></tr> <tr><td>vec4&lt;T&gt;</td> <td>16</td> <td>16</td></tr></tbody></table> <p>You can see for <code>vec3</code> the alignment is the next power of 2 from the size, 16. This can
+catch beginners (and even veterans) off guard as it's not the most intuitive. This becomes especially
+important when we start laying out structs. Take the light struct from the <a href="/learn-wgpu-cn/intermediate/tutorial10-lighting/#seeing-the-light">lighting tutorial</a>:</p> <p>You can see the full table of the alignments in section <a href="https://www.w3.org/TR/WGSL/#alignment-and-size" target="_blank" rel="noopener noreferrer">4.3.7.1 of the WGSL spec<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></p> <div class="language-wgsl extra-class"><pre class="language-text"><code>struct Light {
+    position: vec3&lt;f32&gt;;
+    color: vec3&lt;f32&gt;;
+};
+</code></pre></div><p>So what's the alignment of this scruct? Your first guess would be that it's the sum of
+the alignments of the individual fields. That might make sense if we were in Rust-land,
+but in shader-land, it's a little more involved. The alignment for a given struct is given
+by the following equation:</p> <div class="language- extra-class"><pre class="language-text"><code>// S is the struct in question
+// M is a member of the struct
+AlignOf(S) = max(AlignOfMember(S, M1), ... , AlignOfMember(S, Mn))
+</code></pre></div><p>Basically the alignment of the struct is the maximum of the alignments of the members of
+the struct. This means that:</p> <div class="language- extra-class"><pre class="language-text"><code>AlignOf(Light) 
+    = max(AlignOfMember(Light, position), AlignOfMember(Light, color))
+    = max(16, 16)
+    = 16
+</code></pre></div><p>This is why the <code>LightUniform</code> has those padding fields. WGPU won't accept it if the data
+is not aligned correctly.</p> <h2 id="how-to-deal-with-alignment-issues"><a href="#how-to-deal-with-alignment-issues" class="header-anchor">#</a> How to deal with alignment issues</h2> <p>In general 16, is the max alignment you'll see. In that case you might think that we should
+be able to do something like the following:</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token attribute attr-name">#[repr(C, align(16))]</span>
+<span class="token attribute attr-name">#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]</span>
+<span class="token keyword">struct</span> <span class="token type-definition class-name">LightUniform</span> <span class="token punctuation">{</span>
+    position<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token keyword">f32</span><span class="token punctuation">;</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    color<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token keyword">f32</span><span class="token punctuation">;</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>But this won't compile. The <a href="https://docs.rs/bytemuck/" target="_blank" rel="noopener noreferrer">bytemuck crate<span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a> doesn't work with
+structs with implicit padding bytes. Rust can't guarantee that the memory between the fields
+has been initialized properly. This gave be an error when I tried it:</p> <div class="language- extra-class"><pre class="language-text"><code>error[E0512]: cannot transmute between types of different sizes, or dependently-sized types
+   --&gt; code/intermediate/tutorial10-lighting/src/main.rs:246:8
+    |
+246 | struct LightUniform {
+    |        ^^^^^^^^^^^^
+    |
+    = note: source type: `LightUniform` (256 bits)
+    = note: target type: `_::{closure#0}::TypeWithoutPadding` (192 bits)
+</code></pre></div></div> <footer class="page-edit"><!----> <div class="last-updated"><span class="prefix">Last Updated: </span> <span class="time">12/30/2021, 2:24:37 AM</span></div></footer> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/learn-wgpu-cn/showcase/compute/" class="prev">
+          Compute Example: Tangents and Bitangents
+        </a></span> <span class="next"><a href="/learn-wgpu-cn/news/0.12/">
+          Update to 0.12!
+        </a>
+        →
+      </span></p></div> </main></div></div><div class="global-ui"><!----></div></div>
+    <script src="/learn-wgpu-cn/assets/js/app.4ff5359b.js" defer></script><script src="/learn-wgpu-cn/assets/js/4.7de995c5.js" defer></script><script src="/learn-wgpu-cn/assets/js/33.336b62e7.js" defer></script>
+  </body>
+</html>
