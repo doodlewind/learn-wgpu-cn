@@ -13,7 +13,7 @@ Wgpu 是基于 Rust 的 WebGPU 标准实现，本系列文章是其入门教程 
   * ✅ [顶点缓冲区与索引缓冲区](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial4-buffer/)
   * ✅ [纹理与 BindGroup](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial5-textures/)
   * ✅ [Uniform 缓冲区与 3D 相机](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial6-uniforms/)
-  * 🚧 实例化渲染
+  * ✅ [实例化绘制](https://doodlewind.github.io/learn-wgpu-cn/beginner/tutorial7-instancing/)
   * 🚧 深度缓冲区
   * 🚧 加载模型
 * 进阶篇
