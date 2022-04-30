@@ -1,4 +1,4 @@
-# 基于 Wgpu 和 Rayon 的多线程
+# 🚧 基于 Wgpu 和 Rayon 的多线程
 
 The main selling point of Vulkan, DirectX 12, Metal, and by extension Wgpu is that these APIs is that they designed from the ground up to be thread safe. Up to this point we have been doing everything on a single thread. That's about to change.
 

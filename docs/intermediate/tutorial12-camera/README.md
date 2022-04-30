@@ -1,4 +1,4 @@
-# 更好的相机
+# 🚧 更好的相机
 
 I've been putting this off for a while. Implementing a camera isn't specifically related to using WGPU properly, but it's been bugging me so let's do it.
 
