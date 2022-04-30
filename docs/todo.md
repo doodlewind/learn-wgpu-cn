@@ -1,6 +1,6 @@
-# Coming Soon!
+# 敬请期待
 
-This section has not yet been completed.
+这个章节还没有完成。
 
 <!-- 
 
